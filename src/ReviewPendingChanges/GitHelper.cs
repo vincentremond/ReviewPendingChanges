@@ -22,7 +22,7 @@ namespace ReviewPendingChanges
                     line => new FileStatus(
                         _gitStatusMap.Value[line.Substring(0, 1)],
                         _gitStatusMap.Value[line.Substring(1, 1)],
-                        line.Substring(3)
+                        line.Substring(3).Trim('"')
                     )
                 );
 

@@ -21,20 +21,20 @@ namespace ReviewPendingChanges
         public string[] GetStatus()
         {
             return SimpleGitCommand("ls-files --others --exclude-standard")
-                .Select(f=> $"?? {f}")
+                .Select(f => $"?? {f}")
                 .Union(SimpleGitCommand("status --porcelain"))
                 .Distinct()
                 .ToArray();
         }
 
-        public void DiffTool(string file) => SimpleGitCommand($"-c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks difftool -y {file}");
+        public void DiffTool(string file) => SimpleGitCommand($"-c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks difftool -y \"{file}\"");
         public void Add(string file) => SimpleGitCommand($"add \"{file}\"");
         public void Discard(string file) => SimpleGitCommand($"checkout -- \"{file}\"");
-        public void NewFileDiff(string fileStatusFile) => SimpleVsCodeCommand(Path.Combine(_repository, fileStatusFile));
+        public void NewFileDiff(string fileStatusFile) => SimpleVsCodeCommand($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
 
         private string[] SimpleVsCodeCommand(string arguments)
         {
-            Logger.Verbose($"vscode {arguments}");
+            Logger.Verbose($"notepad {arguments}");
             using var proc = new ProcessHost(@"C:\Program Files\Notepad++\notepad++.exe", _repository);
             proc.Start(arguments);
             proc.WaitForExit(_defaultTimeout);
@@ -43,7 +43,7 @@ namespace ReviewPendingChanges
                 .Where(l => !string.IsNullOrEmpty(l))
                 .ToArray();
         }
-        
+
         private string[] SimpleGitCommand(string arguments)
         {
             Logger.Verbose($"git {arguments}");
