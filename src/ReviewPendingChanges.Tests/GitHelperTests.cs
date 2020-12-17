@@ -14,6 +14,7 @@ namespace ReviewPendingChanges.Tests
                 new[]
                 {
                     " M src/Program.cs",
+                    "RM HudMicSwitch/VbLoginResponse.cs -> HudMicSwitch.Lib/VbLoginResponse.cs",
                 }
             );
 
@@ -22,6 +23,7 @@ namespace ReviewPendingChanges.Tests
             var expected = new FileStatus[]
             {
                 new(GitStatus.Unmodified, GitStatus.Modified, "src/Program.cs"),
+                new(GitStatus.Renamed, GitStatus.Modified, "HudMicSwitch.Lib/VbLoginResponse.cs"),
             };
 
             CollectionAssert.AreEqual(expected, fileStatusEnumerable);
