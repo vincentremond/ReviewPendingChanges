@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using ReviewPendingChanges.Records;
 
@@ -10,6 +11,7 @@ namespace ReviewPendingChanges
     {
         private readonly IGitCaller _gitCaller;
         private readonly Lazy<IDictionary<string, GitStatus>> _gitStatusMap = new(Helpers.MapEnumMembers<GitStatus>, LazyThreadSafetyMode.ExecutionAndPublication);
+        private static Regex _regexRename = new Regex( "^(?<OldName>.+)\\ ->\\ (?<NewName>.+)$", RegexOptions.Compiled);
 
         public GitHelper(IGitCaller gitCaller)
         {
@@ -22,9 +24,20 @@ namespace ReviewPendingChanges
                     line => new FileStatus(
                         _gitStatusMap.Value[line.Substring(0, 1)],
                         _gitStatusMap.Value[line.Substring(1, 1)],
-                        line.Substring(3).Trim('"')
+                        GetFileValue(line.Substring(3)).Trim('"')
                     )
                 );
+
+        private static string GetFileValue(string line)
+        {
+            var match = _regexRename.Match(line);
+            if (match.Success)
+            {
+                return match.Groups["NewName"].Value;
+            }
+
+            return line;
+        }
 
         public void DiffTool(Decision file)
         {
