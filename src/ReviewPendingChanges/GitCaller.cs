@@ -30,18 +30,14 @@ namespace ReviewPendingChanges
         public void DiffTool(string file) => SimpleGitCommand($"-c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks difftool -y \"{file}\"");
         public void Add(string file) => SimpleGitCommand($"add \"{file}\"");
         public void Discard(string file) => SimpleGitCommand($"checkout -- \"{file}\"");
-        public void NewFileDiff(string fileStatusFile) => SimpleVsCodeCommand($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
+        public void NewFileDiff(string fileStatusFile) => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
 
-        private string[] SimpleVsCodeCommand(string arguments)
+        private void OpenTextEditor(string arguments)
         {
             Logger.Verbose($"notepad {arguments}");
             using var proc = new ProcessHost(@"C:\Program Files\Notepad++\notepad++.exe", _repository);
             proc.Start(arguments);
             proc.WaitForExit(_defaultTimeout);
-            return proc.StdOut.ReadAllText(_defaultEncoding)
-                .Split('\n')
-                .Where(l => !string.IsNullOrEmpty(l))
-                .ToArray();
         }
 
         private string[] SimpleGitCommand(string arguments)
