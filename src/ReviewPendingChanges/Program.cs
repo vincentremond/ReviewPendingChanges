@@ -117,6 +117,7 @@ namespace ReviewPendingChanges
                     UserFeedback.Stage => (ConsoleKey.S, "Stage changes", action),
                     UserFeedback.DiscardChanges => (ConsoleKey.D, "Discard changes", action),
                     UserFeedback.Relaunch => (ConsoleKey.R, "Relaunch tool", action),
+                    UserFeedback.Ignore => (ConsoleKey.I, "Ignore file", action),
                     _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
                 };
             }

@@ -5,5 +5,6 @@
         DiscardChanges,
         Stage,
         Relaunch,
+        Ignore,
     }
 }

@@ -11,11 +11,13 @@ namespace ReviewPendingChanges
     {
         private readonly IGitCaller _gitCaller;
         private readonly Lazy<IDictionary<string, GitStatus>> _gitStatusMap = new(Helpers.MapEnumMembers<GitStatus>, LazyThreadSafetyMode.ExecutionAndPublication);
-        private static Regex _regexRename = new Regex( "^(?<OldName>.+)\\ ->\\ (?<NewName>.+)$", RegexOptions.Compiled);
+        private static Regex _regexRename = new Regex("^(?<OldName>.+)\\ ->\\ (?<NewName>.+)$", RegexOptions.Compiled);
+        private readonly List<string> _ignoreList;
 
         public GitHelper(IGitCaller gitCaller)
         {
             _gitCaller = gitCaller;
+            _ignoreList = new List<string>();
         }
 
         public IEnumerable<FileStatus> GetFilesStatus() =>
@@ -26,7 +28,8 @@ namespace ReviewPendingChanges
                         _gitStatusMap.Value[line.Substring(1, 1)],
                         GetFileValue(line.Substring(3)).Trim('"')
                     )
-                );
+                )
+                .Where(status => !_ignoreList.Contains(status.File));
 
         private static string GetFileValue(string line)
         {
@@ -59,12 +62,14 @@ namespace ReviewPendingChanges
                     UserFeedback.DiscardChanges,
                     UserFeedback.Stage,
                     UserFeedback.Relaunch,
+                    UserFeedback.Ignore,
                 },
                 DecisionType.ReviewNewFile => new[]
                 {
                     UserFeedback.DiscardChanges,
                     UserFeedback.Stage,
                     UserFeedback.Relaunch,
+                    UserFeedback.Ignore,
                 },
                 _ => throw new ArgumentOutOfRangeException(nameof(decisionDecisionType), decisionDecisionType, null),
             };
@@ -75,8 +80,11 @@ namespace ReviewPendingChanges
                 UserFeedback.Stage => _gitCaller.Add,
                 UserFeedback.DiscardChanges => _gitCaller.Discard,
                 UserFeedback.Relaunch => Noop,
+                UserFeedback.Ignore => Ignore,
                 _ => throw new ArgumentOutOfRangeException(nameof(userFeedback), userFeedback, null),
             }))(file.File);
+
+        private void Ignore(string file) => _ignoreList.Add(file);
 
         public bool NeedConfirmation(UserFeedback userFeedback) =>
             userFeedback switch
