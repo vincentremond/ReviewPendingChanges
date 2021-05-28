@@ -16,6 +16,7 @@ namespace ReviewPendingChanges
                 (GitStatus.Deleted, GitStatus.Unmodified) => DecisionType.None,
                 (GitStatus.Renamed, GitStatus.Modified) => DecisionType.ReviewChanges,
                 (GitStatus.Renamed, GitStatus.Unmodified) => DecisionType.None,
+                (GitStatus.Unmodified, GitStatus.Deleted) => DecisionType.ReviewChanges,
                 _ => DecisionType.Undefined,
             };
 
