@@ -17,6 +17,7 @@ namespace ReviewPendingChanges
 
             while (true)
             {
+                Logger.Write(new string('=', 120));
                 var groups = helper.GetFilesStatus()
                     .Select(DecisionMatrix.WhatToDo)
                     .GroupBy(
@@ -116,6 +117,7 @@ namespace ReviewPendingChanges
                 {
                     UserFeedback.Stage => (ConsoleKey.S, "Stage changes", action),
                     UserFeedback.DiscardChanges => (ConsoleKey.D, "Discard changes", action),
+                    UserFeedback.DeleteFile => (ConsoleKey.D, "Delete file", action),
                     UserFeedback.Relaunch => (ConsoleKey.R, "Relaunch tool", action),
                     UserFeedback.Ignore => (ConsoleKey.I, "Ignore file", action),
                     _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),

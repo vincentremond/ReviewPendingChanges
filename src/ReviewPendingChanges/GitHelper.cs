@@ -66,7 +66,7 @@ namespace ReviewPendingChanges
                 },
                 DecisionType.ReviewNewFile => new[]
                 {
-                    UserFeedback.DiscardChanges,
+                    UserFeedback.DeleteFile,
                     UserFeedback.Stage,
                     UserFeedback.Relaunch,
                     UserFeedback.Ignore,
@@ -79,6 +79,7 @@ namespace ReviewPendingChanges
             {
                 UserFeedback.Stage => _gitCaller.Add,
                 UserFeedback.DiscardChanges => _gitCaller.Discard,
+                UserFeedback.DeleteFile => _gitCaller.Delete,
                 UserFeedback.Relaunch => Noop,
                 UserFeedback.Ignore => Ignore,
                 _ => throw new ArgumentOutOfRangeException(nameof(userFeedback), userFeedback, null),
@@ -90,6 +91,7 @@ namespace ReviewPendingChanges
             userFeedback switch
             {
                 UserFeedback.DiscardChanges => true,
+                UserFeedback.DeleteFile => true,
                 _ => false,
             };
 

@@ -31,11 +31,12 @@ namespace ReviewPendingChanges
         public void Add(string file) => SimpleGitCommand($"add \"{file}\"");
         public void Discard(string file) => SimpleGitCommand($"checkout -- \"{file}\"");
         public void NewFileDiff(string fileStatusFile) => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
+        public void Delete(string file) => File.Delete(file);
 
         private void OpenTextEditor(string arguments)
         {
-            Logger.Verbose($"notepad {arguments}");
-            using var proc = new ProcessHost(@"C:\Program Files\Notepad++\notepad++.exe", _repository);
+            Logger.Verbose($"code {arguments}");
+            using var proc = new ProcessHost(@"C:\Program Files\Microsoft VS Code\Code.exe", _repository);
             proc.Start(arguments);
             proc.WaitForExit(_defaultTimeout);
         }

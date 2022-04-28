@@ -7,5 +7,6 @@
         void Add(string file);
         void Discard(string file);
         void NewFileDiff(string fileStatusFile);
+        void Delete(string file);
     }
 }
