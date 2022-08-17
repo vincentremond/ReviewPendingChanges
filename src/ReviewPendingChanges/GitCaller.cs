@@ -36,7 +36,7 @@ namespace ReviewPendingChanges
         private void OpenTextEditor(string arguments)
         {
             Logger.Verbose($"code {arguments}");
-            using var proc = new ProcessHost(@"C:\Program Files\Microsoft VS Code\Code.exe", _repository);
+            using var proc = new ProcessHost(@"C:\Program Files\Notepad++\notepad++.exe", _repository);
             proc.Start(arguments);
             proc.WaitForExit(_defaultTimeout);
         }
