@@ -1,7 +1,8 @@
 source https://api.nuget.org/v3/index.json
 
 storage: none
-framework: net5.0
+framework: auto-detect
+
 nuget Colorful.Console
 nuget Microsoft.NET.Test.Sdk
 nuget Moq

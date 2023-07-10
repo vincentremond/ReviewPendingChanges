@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewPendingChanges", "ReviewPendingChanges\ReviewPendingChanges.csproj", "{15356B51-B0D9-452F-899B-F961BD2F0241}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewPendingChanges", "src\ReviewPendingChanges\ReviewPendingChanges.csproj", "{15356B51-B0D9-452F-899B-F961BD2F0241}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewPendingChanges.Tests", "ReviewPendingChanges.Tests\ReviewPendingChanges.Tests.csproj", "{CB322B4C-D13F-4590-BC05-E0281E5276AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewPendingChanges.Tests", "src\ReviewPendingChanges.Tests\ReviewPendingChanges.Tests.csproj", "{CB322B4C-D13F-4590-BC05-E0281E5276AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{FD745458-B918-4BAB-9E60-61058D673E3B}"
 ProjectSection(SolutionItems) = preProject
