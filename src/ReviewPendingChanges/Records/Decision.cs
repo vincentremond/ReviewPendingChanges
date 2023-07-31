@@ -1,4 +1,3 @@
-﻿namespace ReviewPendingChanges.Records
-{
-    internal record Decision (FileStatus FileStatus, DecisionType DecisionType);
-}
+﻿namespace ReviewPendingChanges.Records;
+
+internal record Decision (FileStatus FileStatus, DecisionType DecisionType);

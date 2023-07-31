@@ -9,4 +9,3 @@ nuget Moq
 nuget NUnit
 nuget NUnit3TestAdapter
 nuget ObjectDumper.NET
-nuget runprocess

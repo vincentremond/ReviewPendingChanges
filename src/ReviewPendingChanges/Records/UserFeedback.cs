@@ -1,11 +1,10 @@
-﻿namespace ReviewPendingChanges.Records
+﻿namespace ReviewPendingChanges.Records;
+
+internal enum UserFeedback
 {
-    internal enum UserFeedback
-    {
-        DiscardChanges,
-        DeleteFile,
-        Stage,
-        Relaunch,
-        Ignore,
-    }
+    DiscardChanges,
+    DeleteFile,
+    Stage,
+    Relaunch,
+    Ignore,
 }

@@ -1,56 +1,44 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
-using RunProcess;
 
-namespace ReviewPendingChanges
+namespace ReviewPendingChanges;
+
+public class GitCaller : IGitCaller
 {
-    public class GitCaller : IGitCaller
+    private readonly string _repository;
+
+    public GitCaller(string repository)
     {
-        private static readonly TimeSpan _defaultTimeout = TimeSpan.FromHours(1);
-        private static readonly Encoding _defaultEncoding = Encoding.UTF8;
+        _repository = repository;
+    }
 
-        private readonly string _repository;
+    public string[] GetStatus()
+    {
+        return SimpleGitCommand("ls-files --others --exclude-standard")
+            .Select(f => $"?? {f}")
+            .Union(SimpleGitCommand("status --porcelain"))
+            .Distinct()
+            .ToArray();
+    }
 
-        public GitCaller(string repository)
-        {
-            _repository = repository;
-        }
+    public void DiffTool(string file) => SimpleGitCommand($"-c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks difftool -y \"{file}\"");
+    public void Add(string file) => SimpleGitCommand($"add \"{file}\"");
+    public void Discard(string file) => SimpleGitCommand($"checkout -- \"{file}\"");
+    public void NewFileDiff(string fileStatusFile) => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
+    public void Delete(string file) => File.Delete(file);
 
-        public string[] GetStatus()
-        {
-            return SimpleGitCommand("ls-files --others --exclude-standard")
-                .Select(f => $"?? {f}")
-                .Union(SimpleGitCommand("status --porcelain"))
-                .Distinct()
-                .ToArray();
-        }
+    private void OpenTextEditor(string path)
+    {
+        Logger.Verbose($"notepad {path}");
+        ProcessHelper.StartAndWait(@"notepad.exe", _repository, path);
+    }
 
-        public void DiffTool(string file) => SimpleGitCommand($"-c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks difftool -y \"{file}\"");
-        public void Add(string file) => SimpleGitCommand($"add \"{file}\"");
-        public void Discard(string file) => SimpleGitCommand($"checkout -- \"{file}\"");
-        public void NewFileDiff(string fileStatusFile) => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
-        public void Delete(string file) => File.Delete(file);
+    private string[] SimpleGitCommand(string arguments)
+    {
+        Logger.Verbose($"git {arguments}");
 
-        private void OpenTextEditor(string arguments)
-        {
-            Logger.Verbose($"code {arguments}");
-            using var proc = new ProcessHost(@"C:\Program Files\Notepad++\notepad++.exe", _repository);
-            proc.Start(arguments);
-            proc.WaitForExit(_defaultTimeout);
-        }
-
-        private string[] SimpleGitCommand(string arguments)
-        {
-            Logger.Verbose($"git {arguments}");
-            using var proc = new ProcessHost("git.exe", _repository);
-            proc.Start(arguments);
-            proc.WaitForExit(_defaultTimeout);
-            return proc.StdOut.ReadAllText(_defaultEncoding)
-                .Split('\n')
-                .Where(l => !string.IsNullOrEmpty(l))
-                .ToArray();
-        }
+        return ProcessHelper.StartAndWait("git.exe", _repository, arguments)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries);
     }
 }

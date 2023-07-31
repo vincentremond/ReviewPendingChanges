@@ -3,136 +3,135 @@ using System.Collections.Generic;
 using System.Linq;
 using ReviewPendingChanges.Records;
 
-namespace ReviewPendingChanges
+namespace ReviewPendingChanges;
+
+internal static class Program
 {
-    internal static class Program
+    private static void Main(params string[] args)
     {
-        private static void Main(params string[] args)
+        var repository = args.Any()
+            ? args.First()
+            : Environment.CurrentDirectory;
+
+        var helper = new GitHelper(new GitCaller(repository));
+
+        while (true)
         {
-            var repository = args.Any()
-                ? args.First()
-                : Environment.CurrentDirectory;
-
-            var helper = new GitHelper(new GitCaller(repository));
-
-            while (true)
-            {
-                Logger.Write(new string('=', 120));
-                var groups = helper.GetFilesStatus()
-                    .Select(DecisionMatrix.WhatToDo)
-                    .GroupBy(
-                        i => i.DecisionType switch
-                        {
-                            DecisionType.Undefined => DecisionTypeGroup.Error,
-                            DecisionType.None => DecisionTypeGroup.Ignore,
-                            _ => DecisionTypeGroup.Operate,
-                        }
-                    ).ToDictionary(
-                        g => g.Key,
-                        g => g.ToList().AsReadOnly()
-                    );
-
-                if (groups.TryGetValue(DecisionTypeGroup.Error, out var errors))
-                {
-                    Logger.Error("Error − Could not define what to do for this :", ObjectDumper.Dump(errors));
-                    break;
-                }
-
-                if (groups.TryGetValue(DecisionTypeGroup.Operate, out var toOperate))
-                {
-                    var decision = toOperate.First();
-                    helper.DiffTool(decision);
-                    var actions = helper.GetActions(decision.DecisionType);
-                    var userFeedback = AskUser(decision.FileStatus.File, actions);
-                    if (ConfirmIfNeeded(helper, userFeedback, decision.FileStatus.File))
+            Logger.Write(new string('=', 120));
+            var groups = helper.GetFilesStatus()
+                .Select(DecisionMatrix.WhatToDo)
+                .GroupBy(
+                    i => i.DecisionType switch
                     {
-                        Logger.Write("", $"{userFeedback} for {decision.FileStatus.File}");
-                        helper.PerformAction(userFeedback, decision.FileStatus);
+                        DecisionType.Undefined => DecisionTypeGroup.Error,
+                        DecisionType.None => DecisionTypeGroup.Ignore,
+                        _ => DecisionTypeGroup.Operate,
                     }
-                }
-                else
-                {
-                    Logger.Write("Nothing to do");
-                    break;
-                }
-            }
-        }
+                ).ToDictionary(
+                    g => g.Key,
+                    g => g.ToList().AsReadOnly()
+                );
 
-        private static bool ConfirmIfNeeded(GitHelper helper, UserFeedback userFeedback, string file)
-        {
-            if (helper.NeedConfirmation(userFeedback))
+            if (groups.TryGetValue(DecisionTypeGroup.Error, out var errors))
             {
-                return ConfirmAction($"Are you sure you want to {userFeedback} this file ? [y/n]\n    '{file}'");
+                Logger.Error("Error − Could not define what to do for this :", ObjectDumper.Dump(errors));
+                break;
             }
 
-            return true;
-        }
-
-        private static bool ConfirmAction(string actionToConfirm)
-        {
-            while (true)
+            if (groups.TryGetValue(DecisionTypeGroup.Operate, out var toOperate))
             {
-                Logger.Write(actionToConfirm);
-                var key = Logger.ReadKey();
-                switch (key)
+                var decision = toOperate.First();
+                helper.DiffTool(decision);
+                var actions = helper.GetActions(decision.DecisionType);
+                var userFeedback = AskUser(decision.FileStatus.File, actions);
+                if (ConfirmIfNeeded(helper, userFeedback, decision.FileStatus.File))
                 {
-                    case ConsoleKey.Y:
-                        return true;
-                    case ConsoleKey.N:
-                        return false;
+                    Logger.Write("", $"{userFeedback} for {decision.FileStatus.File}");
+                    helper.PerformAction(userFeedback, decision.FileStatus);
                 }
             }
+            else
+            {
+                Logger.Write("Nothing to do");
+                break;
+            }
+        }
+    }
+
+    private static bool ConfirmIfNeeded(GitHelper helper, UserFeedback userFeedback, string file)
+    {
+        if (helper.NeedConfirmation(userFeedback))
+        {
+            return ConfirmAction($"Are you sure you want to {userFeedback} this file ? [y/n]\n    '{file}'");
         }
 
-        private static UserFeedback AskUser(string file, IEnumerable<UserFeedback> actions)
-        {
-            void ShowOptions(List<(ConsoleKey Key, string Message, UserFeedback Action)> list)
-            {
-                var lines =
-                    new[]
-                        {
-                            $"File: {file}",
-                            "Possible actions :",
-                        }.Union(list.Select(l => $" - [{l.Key}] {l.Message}"))
-                        .ToArray();
-                Logger.Write(lines);
-            }
+        return true;
+    }
 
-            bool ReadResponse(List<(ConsoleKey Key, string Message, UserFeedback Action)> valueTuples, out UserFeedback userFeedback)
+    private static bool ConfirmAction(string actionToConfirm)
+    {
+        while (true)
+        {
+            Logger.Write(actionToConfirm);
+            var key = Logger.ReadKey();
+            switch (key)
             {
-                var key = Logger.ReadKey();
-                if (valueTuples.TryGetValue(i => i.Key == key, out var result))
-                {
-                    userFeedback = result.Action;
+                case ConsoleKey.Y:
                     return true;
-                }
+                case ConsoleKey.N:
+                    return false;
+            }
+        }
+    }
 
-                userFeedback = default;
-                return false;
+    private static UserFeedback AskUser(string file, IEnumerable<UserFeedback> actions)
+    {
+        void ShowOptions(List<(ConsoleKey Key, string Message, UserFeedback Action)> list)
+        {
+            var lines =
+                new[]
+                    {
+                        $"File: {file}",
+                        "Possible actions :",
+                    }.Union(list.Select(l => $" - [{l.Key}] {l.Message}"))
+                    .ToArray();
+            Logger.Write(lines);
+        }
+
+        bool ReadResponse(List<(ConsoleKey Key, string Message, UserFeedback Action)> valueTuples, out UserFeedback userFeedback)
+        {
+            var key = Logger.ReadKey();
+            if (valueTuples.TryGetValue(i => i.Key == key, out var result))
+            {
+                userFeedback = result.Action;
+                return true;
             }
 
-            static (ConsoleKey Key, string Message, UserFeedback Action) GetKeyAndMessageForAction(UserFeedback action)
-            {
-                return action switch
-                {
-                    UserFeedback.Stage => (ConsoleKey.S, "Stage changes", action),
-                    UserFeedback.DiscardChanges => (ConsoleKey.D, "Discard changes", action),
-                    UserFeedback.DeleteFile => (ConsoleKey.D, "Delete file", action),
-                    UserFeedback.Relaunch => (ConsoleKey.R, "Relaunch tool", action),
-                    UserFeedback.Ignore => (ConsoleKey.I, "Ignore file", action),
-                    _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
-                };
-            }
+            userFeedback = default;
+            return false;
+        }
 
-            var validKeys = actions.Select(GetKeyAndMessageForAction).ToList();
-
-            while (true)
+        static (ConsoleKey Key, string Message, UserFeedback Action) GetKeyAndMessageForAction(UserFeedback action)
+        {
+            return action switch
             {
-                ShowOptions(validKeys);
-                if (ReadResponse(validKeys, out var userFeedback))
-                {
-                    return userFeedback;
-                }
+                UserFeedback.Stage => (ConsoleKey.S, "Stage changes", action),
+                UserFeedback.DiscardChanges => (ConsoleKey.D, "Discard changes", action),
+                UserFeedback.DeleteFile => (ConsoleKey.D, "Delete file", action),
+                UserFeedback.Relaunch => (ConsoleKey.R, "Relaunch tool", action),
+                UserFeedback.Ignore => (ConsoleKey.I, "Ignore file", action),
+                _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
+            };
+        }
+
+        var validKeys = actions.Select(GetKeyAndMessageForAction).ToList();
+
+        while (true)
+        {
+            ShowOptions(validKeys);
+            if (ReadResponse(validKeys, out var userFeedback))
+            {
+                return userFeedback;
             }
         }
     }
