@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp;
 
 namespace ReviewPendingChanges;
 
@@ -17,7 +18,7 @@ public class GitCaller : IGitCaller
     {
         return SimpleGitCommand("ls-files --others --exclude-standard")
             .Select(f => $"?? {f}")
-            .Union(SimpleGitCommand("status --porcelain --null", '\0'))
+            .Union(SimpleGitCommand("status --porcelain"))
             .Distinct()
             .ToArray();
     }
@@ -34,11 +35,10 @@ public class GitCaller : IGitCaller
         ProcessHelper.StartAndWait(@"notepad.exe", _repository, path);
     }
 
-    private string[] SimpleGitCommand(string arguments, char splitChar = '\n')
+    private string[] SimpleGitCommand(string arguments)
     {
         Logger.Verbose($"git {arguments}");
 
-        return ProcessHelper.StartAndWait("git.exe", _repository, arguments)
-            .Split(splitChar, StringSplitOptions.RemoveEmptyEntries);
+        return ProcessHelper.StartAndWait("git.exe", _repository, arguments);
     }
 }

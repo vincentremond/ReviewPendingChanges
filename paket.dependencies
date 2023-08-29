@@ -4,6 +4,7 @@ storage: none
 framework: auto-detect
 
 nuget Colorful.Console
+nuget LibGit2Sharp
 nuget Microsoft.NET.Test.Sdk
 nuget Moq
 nuget NUnit
