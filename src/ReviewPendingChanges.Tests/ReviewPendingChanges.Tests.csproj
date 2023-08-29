@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReviewPendingChanges\ReviewPendingChanges.csproj" />

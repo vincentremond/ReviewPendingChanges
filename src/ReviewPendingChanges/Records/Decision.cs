@@ -1,3 +1,3 @@
 ﻿namespace ReviewPendingChanges.Records;
 
-internal record Decision (FileStatus FileStatus, DecisionType DecisionType);
+internal record Decision(FileStatus FileStatus, DecisionType DecisionType);

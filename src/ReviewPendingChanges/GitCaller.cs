@@ -17,7 +17,7 @@ public class GitCaller : IGitCaller
     {
         return SimpleGitCommand("ls-files --others --exclude-standard")
             .Select(f => $"?? {f}")
-            .Union(SimpleGitCommand("status --porcelain"))
+            .Union(SimpleGitCommand("status --porcelain --null", '\0'))
             .Distinct()
             .ToArray();
     }
@@ -34,11 +34,11 @@ public class GitCaller : IGitCaller
         ProcessHelper.StartAndWait(@"notepad.exe", _repository, path);
     }
 
-    private string[] SimpleGitCommand(string arguments)
+    private string[] SimpleGitCommand(string arguments, char splitChar = '\n')
     {
         Logger.Verbose($"git {arguments}");
 
         return ProcessHelper.StartAndWait("git.exe", _repository, arguments)
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            .Split(splitChar, StringSplitOptions.RemoveEmptyEntries);
     }
 }
