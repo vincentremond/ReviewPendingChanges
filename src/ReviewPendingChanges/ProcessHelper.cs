@@ -24,8 +24,8 @@ public static class ProcessHelper
         };
 
         var sb = new List<string>();
-        process.OutputDataReceived += delegate(object _, DataReceivedEventArgs e) { sb.Add(e.Data); };
-        process.ErrorDataReceived += delegate(object _, DataReceivedEventArgs e) { sb.Add(e.Data); };
+        process.OutputDataReceived += delegate (object _, DataReceivedEventArgs e) { sb.Add(e.Data); };
+        process.ErrorDataReceived += delegate (object _, DataReceivedEventArgs e) { sb.Add(e.Data); };
 
         process.Start();
         process.BeginOutputReadLine();

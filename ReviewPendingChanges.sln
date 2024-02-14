@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{FD745458-B918-4BAB-9E60-61058D673E3B}"
 ProjectSection(SolutionItems) = preProject
 	paket.dependencies = paket.dependencies
+	build.cmd = build.cmd
 EndProjectSection
 EndProject
 Global
