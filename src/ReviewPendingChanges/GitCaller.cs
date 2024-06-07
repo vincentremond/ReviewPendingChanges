@@ -16,28 +16,42 @@ public class GitCaller : IGitCaller
 
     public string[] GetStatus()
     {
-        return SimpleGitCommand("ls-files --others --exclude-standard")
+        return SimpleGitCommand("ls-files", "--others", "--exclude-standard")
             .Select(f => $"?? {f}")
-            .Union(SimpleGitCommand("status --porcelain"))
+            .Union(SimpleGitCommand("status", "--porcelain"))
             .Distinct()
             .ToArray();
     }
 
-    public void DiffTool(string file) => SimpleGitCommand($"-c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks difftool -y \"{file}\"");
-    public void Add(string file) => SimpleGitCommand($"add \"{file}\"");
-    public void Discard(string file) => SimpleGitCommand($"checkout -- \"{file}\"");
-    public void NewFileDiff(string fileStatusFile) => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
+    public void DiffTool(string file) => SimpleGitCommand(
+        $"-c",
+        "diff.mnemonicprefix=false",
+        "-c",
+        "core.quotepath=false",
+        "--no-optional-locks",
+        "difftool",
+        "-y",
+        file
+    );
+
+    public void Add(string file) => SimpleGitCommand("add", file);
+    public void Discard(string file) => SimpleGitCommand("checkout", "--", file);
+
+    public void NewFileDiff(string fileStatusFile)
+        => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
+
     public void Delete(string file) => File.Delete(file);
 
     private void OpenTextEditor(string path)
     {
-        Logger.Verbose($"notepad {path}");
-        ProcessHelper.StartAndWait(@"notepad.exe", _repository, path);
+        Logger.Verbose($"code {path}");
+        ProcessHelper.StartAndWait(@"code.cmd", _repository, _repository, "--goto", path);
     }
 
-    private string[] SimpleGitCommand(string arguments)
+    private string[] SimpleGitCommand(params string[] arguments)
     {
-        Logger.Verbose($"git {arguments}");
+        var strArguments = string.Join(" ", arguments);
+        Logger.Verbose($"git {strArguments}");
 
         return ProcessHelper.StartAndWait("git.exe", _repository, arguments);
     }

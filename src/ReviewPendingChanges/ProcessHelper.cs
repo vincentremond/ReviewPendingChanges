@@ -7,7 +7,7 @@ namespace ReviewPendingChanges;
 
 public static class ProcessHelper
 {
-    public static string[] StartAndWait(string fileName, string workingDirectory, string arguments)
+    public static string[] StartAndWait(string fileName, string workingDirectory, params string[] arguments)
     {
         var process = new Process
         {

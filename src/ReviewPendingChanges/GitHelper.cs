@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ReviewPendingChanges.Records;
+
 namespace ReviewPendingChanges;
 
 internal class GitHelper
@@ -32,6 +33,36 @@ internal class GitHelper
 
     private static string GetFileValue(string line)
     {
+        var fileValue = GetPath(line);
+        return FixOctalEncoding(fileValue);
+    }
+
+    private static string FixOctalEncoding(string path)
+    {
+        var bytes = new List<byte>();
+        for (var i = 0; i < path.Length; i++)
+        {
+            if (path[i] == '\\')
+            {
+                var octal = path.Substring(i + 1, 3);
+                bytes.Add(Convert.ToByte(octal, 8));
+                i += 3;
+            }
+            else if (path[i] < 0x80)
+            {
+                bytes.Add((byte)path[i]);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Invalid character {path[i]}");
+            }
+        }
+
+        return System.Text.Encoding.UTF8.GetString(bytes.ToArray());
+    }
+
+    private static string GetPath(string line)
+    {
         var match = _regexRename.Match(line);
         if (match.Success)
         {
@@ -40,6 +71,7 @@ internal class GitHelper
 
         return line;
     }
+
 
     public void DiffTool(Decision file)
     {
@@ -94,5 +126,7 @@ internal class GitHelper
             _ => false,
         };
 
-    private void Noop(string _) { }
+    private void Noop(string _)
+    {
+    }
 }
