@@ -3,4 +3,4 @@
 dotnet tool restore
 dotnet build -- %*
 
-add-to-path src\ReviewPendingChanges\bin\Debug
+AddToPath .\src\ReviewPendingChanges\bin\Debug
