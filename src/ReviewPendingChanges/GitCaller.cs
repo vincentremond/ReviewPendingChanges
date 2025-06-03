@@ -38,14 +38,22 @@ public class GitCaller : IGitCaller
     public void Discard(string file) => SimpleGitCommand("checkout", "--", file);
 
     public void NewFileDiff(string fileStatusFile)
-        => OpenTextEditor($"\"{Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar))}\"");
+        => OpenTextEditor(Path.Combine(_repository, fileStatusFile.Replace('/', Path.DirectorySeparatorChar)));
 
     public void Delete(string file) => File.Delete(file);
 
     private void OpenTextEditor(string path)
     {
-        Logger.Verbose($"code {path}");
-        ProcessHelper.StartAndWait(@"code.cmd", _repository, _repository, "--goto", path);
+        string[] args =
+        [
+            "/c",
+            "code.cmd",
+            _repository,
+            "--goto",
+            path
+        ];
+        Logger.Verbose($"cmd.exe {String.Join(' ', args)}");
+        ProcessHelper.StartAndWait(@"cmd.exe", _repository, args);
     }
 
     private string[] SimpleGitCommand(params string[] arguments)
