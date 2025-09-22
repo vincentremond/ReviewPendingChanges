@@ -1,0 +1,13 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/.build/">
+    <File Path="build.cmd" />
+    <File Path="paket.dependencies" />
+  </Folder>
+  <Project Path="src/ReviewPendingChanges.Tests/ReviewPendingChanges.Tests.csproj" />
+  <Project Path="src/ReviewPendingChanges/ReviewPendingChanges.csproj" />
+</Solution>
