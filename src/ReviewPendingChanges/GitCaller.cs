@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using LibGit2Sharp;
 
 namespace ReviewPendingChanges;
 
@@ -50,7 +49,7 @@ public class GitCaller : IGitCaller
             "code.cmd",
             _repository,
             "--goto",
-            path
+            path,
         ];
         Logger.Verbose($"cmd.exe {String.Join(' ', args)}");
         ProcessHelper.StartAndWait(@"cmd.exe", _repository, args);

@@ -11,7 +11,7 @@ internal class GitHelper
 {
     private readonly IGitCaller _gitCaller;
     private readonly Lazy<IDictionary<string, GitStatus>> _gitStatusMap = new(Helpers.MapEnumMembers<GitStatus>, LazyThreadSafetyMode.ExecutionAndPublication);
-    private static Regex _regexRename = new Regex("^(?<OldName>.+)\\ ->\\ (?<NewName>.+)$", RegexOptions.Compiled);
+    private static readonly Regex _regexRename = new Regex("^(?<OldName>.+)\\ ->\\ (?<NewName>.+)$", RegexOptions.Compiled);
     private readonly List<string> _ignoreList;
 
     public GitHelper(IGitCaller gitCaller)

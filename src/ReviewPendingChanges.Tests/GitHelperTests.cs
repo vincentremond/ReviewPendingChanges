@@ -13,7 +13,7 @@ public class GitHelperTests
         mock.Setup(x => x.GetStatus()).Returns(
             [
                 " M src/Program.cs",
-                "RM HudMicSwitch/VbLoginResponse.cs -> HudMicSwitch.Lib/VbLoginResponse.cs"
+                "RM HudMicSwitch/VbLoginResponse.cs -> HudMicSwitch.Lib/VbLoginResponse.cs",
             ]
         );
 
