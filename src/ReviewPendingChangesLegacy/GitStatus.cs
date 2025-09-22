@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace ReviewPendingChanges;
+namespace ReviewPendingChangesLegacy;
 
 [Flags]
 public enum GitStatus

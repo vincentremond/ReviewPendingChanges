@@ -2,7 +2,7 @@
 using System.Drawing;
 using Console = Colorful.Console;
 
-namespace ReviewPendingChanges;
+namespace ReviewPendingChangesLegacy;
 
 public class Logger
 {

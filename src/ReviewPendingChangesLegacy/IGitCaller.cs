@@ -1,4 +1,4 @@
-﻿namespace ReviewPendingChanges;
+﻿namespace ReviewPendingChangesLegacy;
 
 public interface IGitCaller
 {

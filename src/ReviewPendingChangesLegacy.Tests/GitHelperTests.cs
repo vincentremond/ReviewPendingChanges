@@ -1,8 +1,8 @@
 using Moq;
 using NUnit.Framework;
-using ReviewPendingChanges.Records;
+using ReviewPendingChangesLegacy.Records;
 
-namespace ReviewPendingChanges.Tests;
+namespace ReviewPendingChangesLegacy.Tests;
 
 public class GitHelperTests
 {

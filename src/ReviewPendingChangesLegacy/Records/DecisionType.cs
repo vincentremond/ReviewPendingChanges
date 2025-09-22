@@ -1,4 +1,4 @@
-﻿namespace ReviewPendingChanges.Records;
+﻿namespace ReviewPendingChangesLegacy.Records;
 
 public enum DecisionType
 {

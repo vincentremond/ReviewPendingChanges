@@ -1,6 +1,6 @@
-﻿using ReviewPendingChanges.Records;
+﻿using ReviewPendingChangesLegacy.Records;
 
-namespace ReviewPendingChanges;
+namespace ReviewPendingChangesLegacy;
 
 internal class DecisionMatrix
 {

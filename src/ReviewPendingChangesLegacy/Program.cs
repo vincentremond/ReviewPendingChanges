@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ReviewPendingChanges.Records;
+using ReviewPendingChangesLegacy.Records;
 
-namespace ReviewPendingChanges;
+namespace ReviewPendingChangesLegacy;
 
 internal static class Program
 {

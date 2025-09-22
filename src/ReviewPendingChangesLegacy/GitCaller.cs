@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace ReviewPendingChanges;
+namespace ReviewPendingChangesLegacy;
 
 public class GitCaller : IGitCaller
 {

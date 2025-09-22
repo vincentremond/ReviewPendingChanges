@@ -8,6 +8,6 @@
     <File Path="build.cmd" />
     <File Path="paket.dependencies" />
   </Folder>
-  <Project Path="src/ReviewPendingChanges.Tests/ReviewPendingChanges.Tests.csproj" />
-  <Project Path="src/ReviewPendingChanges/ReviewPendingChanges.csproj" />
+  <Project Path="src\ReviewPendingChangesLegacy.Tests\ReviewPendingChangesLegacy.Tests.csproj" />
+  <Project Path="src\ReviewPendingChangesLegacy\ReviewPendingChangesLegacy.csproj" />
 </Solution>
