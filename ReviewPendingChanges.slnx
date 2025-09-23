@@ -8,7 +8,11 @@
     <File Path="build.cmd" />
     <File Path="paket.dependencies" />
   </Folder>
-  <Project Path="ReviewPendingChanges\ReviewPendingChanges.fsproj" Type="Classic F#">
+  <Folder Name="/Pinicola.FSharp/">
+    <Project Path="Pinicola.FSharp/Pinicola.FSharp.SpectreConsole/Pinicola.FSharp.SpectreConsole.fsproj" />
+    <Project Path="Pinicola.FSharp/Pinicola.FSharp/Pinicola.FSharp.fsproj" />
+  </Folder>
+  <Project Path="ReviewPendingChanges\ReviewPendingChanges.fsproj">
     <Configuration Solution="Debug|x64" Project="Debug|Any CPU" />
     <Configuration Solution="Debug|x86" Project="Debug|Any CPU" />
     <Configuration Solution="Release|x64" Project="Release|Any CPU" />

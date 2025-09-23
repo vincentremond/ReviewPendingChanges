@@ -3,9 +3,20 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <WarningsAsErrors>FS0025</WarningsAsErrors>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="paket.references" />
+    <Content Include="Properties\launchSettings.json" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="Types.fs" />
+    <Compile Include="BigBrain.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pinicola.FSharp\Pinicola.FSharp\Pinicola.FSharp.fsproj" />
+    <ProjectReference Include="..\Pinicola.FSharp\Pinicola.FSharp.SpectreConsole\Pinicola.FSharp.SpectreConsole.fsproj" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

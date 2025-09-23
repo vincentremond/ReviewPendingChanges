@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using Console = Colorful.Console;
 
 namespace ReviewPendingChangesLegacy;
 

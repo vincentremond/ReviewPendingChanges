@@ -3,7 +3,8 @@ source https://api.nuget.org/v3/index.json
 storage: none
 framework: auto-detect
 
-nuget Colorful.Console
+nuget FSharp.Core
+nuget FsToolkit.ErrorHandling
 nuget LibGit2Sharp
 nuget Microsoft.NET.Test.Sdk
 nuget Moq
