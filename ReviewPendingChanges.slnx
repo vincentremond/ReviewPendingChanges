@@ -5,8 +5,8 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/.build/">
-    <File Path="build.cmd" />
     <File Path="paket.dependencies" />
+    <File Path="build.ps1" />
   </Folder>
   <Folder Name="/Pinicola.FSharp/">
     <Project Path="Pinicola.FSharp/Pinicola.FSharp.SpectreConsole/Pinicola.FSharp.SpectreConsole.fsproj" />
