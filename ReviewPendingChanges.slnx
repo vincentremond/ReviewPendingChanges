@@ -18,6 +18,4 @@
     <Configuration Solution="Release|x64" Project="Release|Any CPU" />
     <Configuration Solution="Release|x86" Project="Release|Any CPU" />
   </Project>
-  <Project Path="src\ReviewPendingChangesLegacy.Tests\ReviewPendingChangesLegacy.Tests.csproj" />
-  <Project Path="src\ReviewPendingChangesLegacy\ReviewPendingChangesLegacy.csproj" />
 </Solution>
