@@ -1,7 +1,6 @@
 ﻿open System
 
 open System.Diagnostics
-open System.IO
 open LibGit2Sharp
 open Pinicola.FSharp.SpectreConsole
 open ReviewPendingChanges
@@ -20,27 +19,13 @@ match gitDirectory with
     AnsiConsole.markupLine $"[grey]Git repository found at: {gitDirectory}[/]"
     let repo = new Repository(gitDirectory)
 
-    let hijackSuffix = ".user.tmp"
-
-    let getHijackFilePath (entry: StatusEntry) =
-        let repoPath = repo.Info.WorkingDirectory
-        let hijackRelativePath = $"{entry.FilePath}{hijackSuffix}"
-        let hijackFileInfo = Path.Join(repoPath, hijackRelativePath) |> FileInfo
-        hijackFileInfo
-
-    let checkIfHijack (fileEntry: StatusEntry) =
-
-        fileEntry.FilePath.EndsWith(hijackSuffix, StringComparison.InvariantCultureIgnoreCase)
-        || (getHijackFilePath fileEntry).Exists
-
     let getToReview ignoredFiles =
         repo.RetrieveStatus()
         |> Seq.toList
-        |> BigBrain.filterToReview
+        |> BigBrain.filterToReview repo
         |> List.filter (fun e -> not (ignoredFiles |> List.contains e.FilePath))
-        |> List.filter (checkIfHijack >> not)
 
-    let runCommand (cmd: string) (args: string list) workingDir =
+    let runCommand (cmd: string) (args: string list) workingDir waitForExit =
         let psi = ProcessStartInfo(cmd, args)
         psi.WorkingDirectory <- workingDir
         psi.UseShellExecute <- false
@@ -50,6 +35,12 @@ match gitDirectory with
 
         if not started then
             failwith $"Failed to start command: {cmd} with args: {args}"
+
+        if waitForExit then
+            p.WaitForExit()
+
+    let runCommandAndWait cmd args workingDir = runCommand cmd args workingDir true
+    let runCommand cmd args workingDir = runCommand cmd args workingDir false
 
     let runAutoAction action (entry: StatusEntry) =
         match action with
@@ -76,7 +67,7 @@ match gitDirectory with
                 repo.Info.WorkingDirectory
 
     let discardFile (repo: Repository) filePath =
-        runCommand
+        runCommandAndWait
             "git"
             [
                 "checkout"
@@ -88,91 +79,148 @@ match gitDirectory with
     let doReviewChangeForFile entry counter otherCount ignoredFiles =
         let total = counter + otherCount
         let padding = total.ToString().Length
-        let statusToConsider = BigBrain.getStatusToConsider entry
-        let autoAction, userPossibleActions = BigBrain.getActionsForStatus statusToConsider
+        let simplifiedStatus, hijackStatus = BigBrain.getStatusToConsider repo entry
+
+        let autoAction, userPossibleActions =
+            BigBrain.getActionsForStatus simplifiedStatus hijackStatus
+
         runAutoAction autoAction entry
 
         let prefix, color =
-            match statusToConsider with
-            | SimplifiedFileStatus.New -> "+", "green"
+            match simplifiedStatus with
+            | SimplifiedFileStatus.New -> "[+]", "green"
             | SimplifiedFileStatus.Deleted -> "-", "red"
             | SimplifiedFileStatus.Modified -> "~", "yellow"
             | SimplifiedFileStatus.Renamed -> ">", "blue"
+            | SimplifiedFileStatus.SubModule -> "🗁", "magenta"
+
+        let hijackStatusText =
+            match hijackStatus with
+            | HijackStatus.NotHijacked -> Raw ""
+            | HijackStatus.Hijacked -> Markup " [red](Hijacked)[/] "
 
         let filePrefix =
             SpectreConsoleString.build [
                 SpectreConsoleString.fromInterpolated $"[grey][[{counter.ToString().PadLeft(padding)}/{total}]][/] "
-                Markup $"[{color}]{prefix}[/] "
+                Markup $"[{color}]{prefix |> Markup.escape}[/] "
+                hijackStatusText
                 SpectreConsoleString.fromInterpolated $"[yellow]{entry.FilePath}[/] "
             ]
 
-        let title =
-            SpectreConsoleString.build [
-                filePrefix
-                SpectreConsoleString.fromInterpolated $"[grey]({statusToConsider} >> {autoAction})[/]"
-            ]
+        let continue1, ignoredFiles =
+            match hijackStatus with
+            | HijackStatus.NotHijacked -> true, ignoredFiles
+            | HijackStatus.Hijacked ->
 
-        let selectionPrompt =
-            SelectionPrompt.init ()
-            |> SelectionPrompt.withTitle title
-            |> SelectionPrompt.addChoices userPossibleActions
+                let hijackPossibleChoices = [
+                    UserPossibleAction.UnHijack
+                    UserPossibleAction.Ignore
+                    UserPossibleAction.Restart
+                ]
 
-        let userChoice = AnsiConsole.prompt selectionPrompt
-
-        let needsConfirmation =
-            match userChoice with
-            | UserPossibleAction.Discard
-            | UserPossibleAction.Delete -> true
-            | UserPossibleAction.Restart
-            | UserPossibleAction.Ignore
-            | UserPossibleAction.Stage
-            | UserPossibleAction.Hijack -> false
-
-        let shouldContinue =
-            if needsConfirmation then
-                let confirmText =
+                let hijackPromptTitle =
                     SpectreConsoleString.build [
                         filePrefix
-                        SpectreConsoleString.fromInterpolated
-                            $"Are you sure you want to [red]{userChoice}[/] this file ?"
+                        Markup $" [red](Hijacked)[/]"
                     ]
 
-                AnsiConsole.confirm confirmText
-            else
-                true
+                let hijackChoice =
+                    SelectionPrompt.init ()
+                    |> SelectionPrompt.withTitle hijackPromptTitle
+                    |> SelectionPrompt.addChoices hijackPossibleChoices
+                    |> AnsiConsole.prompt
 
-        let result =
-            if not shouldContinue then
-                ignoredFiles
-            else
+                match hijackChoice with
+                | UserPossibleAction.UnHijack ->
+                    Hijacker.unHijack repo entry
+                    true, ignoredFiles
+                | UserPossibleAction.Ignore -> false, entry.FilePath :: ignoredFiles
+                | UserPossibleAction.Restart -> false, ignoredFiles
+                | _ -> failwith "Unexpected choice in hijack handling"
+
+        if not continue1 then
+            ignoredFiles
+        else
+
+            let selectionPromptTitle =
+                SpectreConsoleString.build [
+                    filePrefix
+                    SpectreConsoleString.fromInterpolated $"[grey]({simplifiedStatus} >> {autoAction})[/]"
+                ]
+
+            let selectionPrompt =
+                SelectionPrompt.init ()
+                |> SelectionPrompt.withTitle selectionPromptTitle
+                |> SelectionPrompt.addChoices userPossibleActions
+
+            let userChoice = AnsiConsole.prompt selectionPrompt
+
+            let needsConfirmation =
                 match userChoice with
-                | UserPossibleAction.Restart -> ignoredFiles
-                | UserPossibleAction.Ignore -> entry.FilePath :: ignoredFiles
-                | UserPossibleAction.Stage ->
-                    Commands.Stage(repo, entry.FilePath)
-                    ignoredFiles
-                | UserPossibleAction.Discard ->
-                    discardFile repo entry.FilePath
-                    ignoredFiles
-                | UserPossibleAction.Hijack ->
-                    let hijackFileInfo = getHijackFilePath entry
-                    if hijackFileInfo.Exists then
-                        failwith $"Hijack file already exists: {hijackFileInfo.FullName}"
+                | UserPossibleAction.Discard
+                | UserPossibleAction.Delete -> true
+                | UserPossibleAction.Restart
+                | UserPossibleAction.Ignore
+                | UserPossibleAction.Stage
+                | UserPossibleAction.Hijack
+                | UserPossibleAction.UnHijack -> false
 
-                    File.WriteAllBytes(hijackFileInfo.FullName, [||])
+            let shouldContinue =
+                if needsConfirmation then
+                    let confirmText =
+                        SpectreConsoleString.build [
+                            filePrefix
+                            SpectreConsoleString.fromInterpolated
+                                $"Are you sure you want to [red]{userChoice}[/] this file ?"
+                        ]
+
+                    SelectionPrompt.init()
+                    |> SelectionPrompt.withTitle confirmText
+                    |> SelectionPrompt.addChoices Maybe.all
+                    |> AnsiConsole.prompt
+                    |> Maybe.toBool
+
+                else
+                    true
+
+            let result =
+                if not shouldContinue then
                     ignoredFiles
+                else
+                    match userChoice with
+                    | UserPossibleAction.Restart -> ignoredFiles
+                    | UserPossibleAction.Ignore -> entry.FilePath :: ignoredFiles
+                    | UserPossibleAction.Stage ->
+                        Commands.Stage(repo, entry.FilePath)
+                        ignoredFiles
+                    | UserPossibleAction.Discard ->
+                        discardFile repo entry.FilePath
+                        ignoredFiles
+                    | UserPossibleAction.Hijack ->
+                        Hijacker.hijack repo entry
+                        ignoredFiles
 
-                | UserPossibleAction.Delete ->
-                    Commands.Remove(repo, entry.FilePath)
-                    ignoredFiles
+                    | UserPossibleAction.UnHijack ->
+                        let hijackFileInfo = Hijacker.getHijackFilePath repo entry
 
-        AnsiConsole.writeLine
-        <| SpectreConsoleString.build [
-            filePrefix
-            SpectreConsoleString.fromInterpolated $"[green]{userChoice}[/]"
-        ]
+                        if not hijackFileInfo.Exists then
+                            failwith $"Hijack file does not exist: {hijackFileInfo.FullName}"
 
-        result
+                        hijackFileInfo.Delete()
+
+                        ignoredFiles
+
+                    | UserPossibleAction.Delete ->
+                        Commands.Remove(repo, entry.FilePath)
+                        ignoredFiles
+
+            AnsiConsole.writeLine
+            <| SpectreConsoleString.build [
+                filePrefix
+                SpectreConsoleString.fromInterpolated $"[green]{userChoice}[/]"
+            ]
+
+            result
 
     let rec doReviewLoop counter ignoredFiles =
         let toReview = getToReview ignoredFiles

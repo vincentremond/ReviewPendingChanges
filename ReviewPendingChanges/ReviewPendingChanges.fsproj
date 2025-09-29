@@ -8,9 +8,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <Content Include="Properties\launchSettings.json" />
     <Compile Include="Helpers.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="LibGit2Extensions.fs" />
+    <Compile Include="Hijacker.fs" />
     <Compile Include="BigBrain.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
