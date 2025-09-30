@@ -62,51 +62,52 @@ module BigBrain =
 
     let getActionsForStatus simplifiedStatus hijackStatus =
 
-        let autoAction =
-            match simplifiedStatus with
-            | SimplifiedFileStatus.New -> AutoAction.OpenInEditor
-            | SimplifiedFileStatus.Modified -> AutoAction.OpenInDiffTool
-            | SimplifiedFileStatus.Deleted -> AutoAction.Noop
-            | SimplifiedFileStatus.Renamed -> AutoAction.Noop
-            | SimplifiedFileStatus.SubModule -> AutoAction.Noop
-
-        let userPossibleActions =
-            match hijackStatus, simplifiedStatus with
-            | HijackStatus.Hijacked, _ -> [
-                UserPossibleAction.UnHijack
+        match hijackStatus, simplifiedStatus with
+        | HijackStatus.Hijacked, _ ->
+            AutoAction.Noop,
+            [
                 UserPossibleAction.Ignore
+                UserPossibleAction.UnHijack
                 UserPossibleAction.Restart
-              ]
-            | HijackStatus.NotHijacked, SimplifiedFileStatus.New -> [
+            ]
+        | HijackStatus.NotHijacked, SimplifiedFileStatus.New ->
+            AutoAction.OpenInEditor,
+            [
                 UserPossibleAction.Stage
                 UserPossibleAction.Delete
                 UserPossibleAction.Ignore
                 UserPossibleAction.Restart
-              ]
-            | HijackStatus.NotHijacked, SimplifiedFileStatus.Modified -> [
+            ]
+        | HijackStatus.NotHijacked, SimplifiedFileStatus.Modified ->
+            AutoAction.OpenInDiffTool,
+            [
                 UserPossibleAction.Stage
                 UserPossibleAction.Discard
                 UserPossibleAction.Hijack
                 UserPossibleAction.Ignore
                 UserPossibleAction.Restart
-              ]
-            | HijackStatus.NotHijacked, SimplifiedFileStatus.Deleted -> [
+            ]
+        | HijackStatus.NotHijacked, SimplifiedFileStatus.Deleted ->
+            AutoAction.Noop,
+            [
                 UserPossibleAction.Stage
                 UserPossibleAction.Discard
                 UserPossibleAction.Ignore
                 UserPossibleAction.Restart
-              ]
-            | HijackStatus.NotHijacked, SimplifiedFileStatus.Renamed -> [
+            ]
+        | HijackStatus.NotHijacked, SimplifiedFileStatus.Renamed ->
+            AutoAction.Noop,
+            [
                 UserPossibleAction.Stage
                 UserPossibleAction.Discard
                 UserPossibleAction.Ignore
                 UserPossibleAction.Restart
-              ]
-            | HijackStatus.NotHijacked, SimplifiedFileStatus.SubModule -> [
+            ]
+        | HijackStatus.NotHijacked, SimplifiedFileStatus.SubModule ->
+            AutoAction.Noop,
+            [
                 UserPossibleAction.Stage
                 UserPossibleAction.Discard
                 UserPossibleAction.Ignore
                 UserPossibleAction.Restart
-              ]
-
-        autoAction, userPossibleActions
+            ]

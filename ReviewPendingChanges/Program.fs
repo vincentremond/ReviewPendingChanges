@@ -1,5 +1,4 @@
 ﻿open System
-
 open System.Diagnostics
 open LibGit2Sharp
 open Pinicola.FSharp.SpectreConsole
@@ -174,7 +173,7 @@ match gitDirectory with
                                 $"Are you sure you want to [red]{userChoice}[/] this file ?"
                         ]
 
-                    SelectionPrompt.init()
+                    SelectionPrompt.init ()
                     |> SelectionPrompt.withTitle confirmText
                     |> SelectionPrompt.addChoices Maybe.all
                     |> AnsiConsole.prompt
