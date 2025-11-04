@@ -197,7 +197,8 @@ match gitDirectory with
                         ignoredFiles
                     | UserPossibleAction.Hijack ->
                         Hijacker.hijack repo entry
-                        ignoredFiles
+                        // If the file is hijacked, we should ignore it in the next review loop
+                        entry.FilePath :: ignoredFiles
 
                     | UserPossibleAction.UnHijack ->
                         let hijackFileInfo = Hijacker.getHijackFilePath repo entry
@@ -206,6 +207,8 @@ match gitDirectory with
                             failwith $"Hijack file does not exist: {hijackFileInfo.FullName}"
 
                         hijackFileInfo.Delete()
+                        if hijackFileInfo.Exists then
+                            failwith $"Failed to delete hijack file: {hijackFileInfo.FullName}"
 
                         ignoredFiles
 
