@@ -55,13 +55,16 @@ match gitDirectory with
                 repo.Info.WorkingDirectory
         | AutoAction.OpenInEditor ->
             runCommand
+                // open --file $FilePath$ --directory $SolutionDir$ --column $ColumnNumber$ --line $LineNumber$
                 "cmd.exe"
                 [
                     "/c"
-                    "code"
-                    repo.Info.WorkingDirectory
-                    "--goto"
+                    "csr"
+                    "open"
+                    "--file"
                     entry.FilePath
+                    "--directory"
+                    repo.Info.WorkingDirectory
                 ]
                 repo.Info.WorkingDirectory
 
