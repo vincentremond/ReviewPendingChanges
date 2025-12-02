@@ -43,3 +43,13 @@ type UserPossibleAction =
     | Ignore
     | Restart
     | Delete
+
+    static member asPastAction =
+        function
+        | UserPossibleAction.Stage -> "Staged"
+        | UserPossibleAction.Hijack -> "Hijacked"
+        | UserPossibleAction.UnHijack -> "Unhijacked"
+        | UserPossibleAction.Discard -> "Discarded"
+        | UserPossibleAction.Ignore -> "Ignored"
+        | UserPossibleAction.Restart -> "Restarted"
+        | UserPossibleAction.Delete -> "Deleted"

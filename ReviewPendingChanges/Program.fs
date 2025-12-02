@@ -223,7 +223,7 @@ match gitDirectory with
             AnsiConsole.writeLine
             <| SpectreConsoleString.build [
                 filePrefix
-                SpectreConsoleString.fromInterpolated $"[green]{userChoice}[/]"
+                SpectreConsoleString.fromInterpolated $"[green]{userChoice |> UserPossibleAction.asPastAction}[/]"
             ]
 
             result
