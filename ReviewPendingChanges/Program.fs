@@ -127,6 +127,7 @@ match gitDirectory with
                     SelectionPrompt.init ()
                     |> SelectionPrompt.withTitle hijackPromptTitle
                     |> SelectionPrompt.addChoices hijackPossibleChoices
+                    |> SelectionPrompt.withWrapAround true
                     |> AnsiConsole.prompt
 
                 match hijackChoice with
@@ -151,6 +152,7 @@ match gitDirectory with
                 SelectionPrompt.init ()
                 |> SelectionPrompt.withTitle selectionPromptTitle
                 |> SelectionPrompt.addChoices userPossibleActions
+                |> SelectionPrompt.withWrapAround true
 
             let userChoice = AnsiConsole.prompt selectionPrompt
 
@@ -176,6 +178,7 @@ match gitDirectory with
                     SelectionPrompt.init ()
                     |> SelectionPrompt.withTitle confirmText
                     |> SelectionPrompt.addChoices Maybe.all
+                    |> SelectionPrompt.withWrapAround true
                     |> AnsiConsole.prompt
                     |> Maybe.toBool
 
@@ -207,6 +210,7 @@ match gitDirectory with
                             failwith $"Hijack file does not exist: {hijackFileInfo.FullName}"
 
                         hijackFileInfo.Delete()
+
                         if hijackFileInfo.Exists then
                             failwith $"Failed to delete hijack file: {hijackFileInfo.FullName}"
 
