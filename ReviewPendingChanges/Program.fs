@@ -91,10 +91,10 @@ match gitDirectory with
         let prefix, color =
             match simplifiedStatus with
             | SimplifiedFileStatus.New -> "[+]", "green"
-            | SimplifiedFileStatus.Deleted -> "-", "red"
-            | SimplifiedFileStatus.Modified -> "~", "yellow"
-            | SimplifiedFileStatus.Renamed -> ">", "blue"
-            | SimplifiedFileStatus.SubModule -> "🗁", "magenta"
+            | SimplifiedFileStatus.Deleted -> "[-]", "red"
+            | SimplifiedFileStatus.Modified -> "[~]", "yellow"
+            | SimplifiedFileStatus.Renamed -> "[>]", "blue"
+            | SimplifiedFileStatus.SubModule -> "[🗁]", "magenta"
 
         let hijackStatusText =
             match hijackStatus with
