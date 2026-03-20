@@ -59,7 +59,7 @@ match gitDirectory with
                 "cmd.exe"
                 [
                     "/c"
-                    "csr"
+                    "c"
                     "open"
                     "--file"
                     entry.FilePath
