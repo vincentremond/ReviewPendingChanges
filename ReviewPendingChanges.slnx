@@ -8,10 +8,6 @@
     <File Path="paket.dependencies" />
     <File Path="build.ps1" />
   </Folder>
-  <Folder Name="/Pinicola.FSharp/">
-    <Project Path="Pinicola.FSharp/Pinicola.FSharp.SpectreConsole/Pinicola.FSharp.SpectreConsole.fsproj" />
-    <Project Path="Pinicola.FSharp/Pinicola.FSharp/Pinicola.FSharp.fsproj" />
-  </Folder>
   <Project Path="ReviewPendingChanges\ReviewPendingChanges.fsproj">
     <Configuration Solution="Debug|x64" Project="Debug|Any CPU" />
     <Configuration Solution="Debug|x86" Project="Debug|Any CPU" />

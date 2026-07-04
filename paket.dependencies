@@ -3,6 +3,8 @@ source https://api.nuget.org/v3/index.json
 storage: none
 framework: auto-detect
 
+git https://github.com/vincentremond/Pinicola.FSharp.git main build: "dotnet pack -o nupkg", Packages: /nupkg/
+
 nuget FSharp.Core
 nuget FsToolkit.ErrorHandling
 nuget LibGit2Sharp
@@ -11,3 +13,5 @@ nuget Moq
 nuget NUnit
 nuget NUnit3TestAdapter
 nuget ObjectDumper.NET
+nuget Pinicola.FSharp
+nuget Pinicola.FSharp.SpectreConsole
